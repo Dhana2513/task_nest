@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:task_nest/core/application/application.dart';
 
 import 'presentation/home_screen.dart';
 
-void main() {
+void main() async {
+  await Application.initialize();
   runApp(const MyApp());
 }
 

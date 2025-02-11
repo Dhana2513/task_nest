@@ -10,10 +10,10 @@ class UseCases {
   final DeleteTask deleteTask;
   final UpdateTask updateTask;
 
-  UseCases(
-    this.fetchTasks,
-    this.createTask,
-    this.deleteTask,
-    this.updateTask,
-  );
+  UseCases({
+    required this.fetchTasks,
+    required this.createTask,
+    required this.deleteTask,
+    required this.updateTask,
+  });
 }

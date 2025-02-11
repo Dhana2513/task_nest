@@ -5,39 +5,35 @@ import 'package:task_nest/data/datasource/remote/task_remote_datasource.dart';
 
 import 'package:task_nest/domain/entity/task_entity.dart';
 
-import '../../domain/repoository/task_repository_protocol.dart';
+import '../../domain/repository/task_repository_protocol.dart';
 import '../datasource/local/task_local_datasource.dart';
 
 class TaskRepository implements TaskRepositoryProtocol {
-  final TaskLocalDatasource taskDatasource;
-  final TaskRemoteDatasource taskRemoteDatasource;
+  final TaskLocalDatasourceProtocol localDatasource;
+  final TaskRemoteDatasourceProtocol remoteDatasource;
 
   TaskRepository({
-    required this.taskDatasource,
-    required this.taskRemoteDatasource,
+    required this.localDatasource,
+    required this.remoteDatasource,
   });
 
   @override
+  Future<Either<Failure, List<TaskEntity>>> fetchTasks() {
+    return localDatasource.fetchTasks();
+  }
+
+  @override
   Future<Either<Failure, bool>> createTask(TaskEntity taskModel) {
-    // TODO: implement createTask
-    throw UnimplementedError();
+    return localDatasource.createTask(taskModel);
   }
 
   @override
   Future<Either<Failure, bool>> deleteTask(TaskEntity taskModel) {
-    // TODO: implement deleteTask
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<Either<Failure, List<TaskEntity>>> fetchTasks() {
-    // TODO: implement fetchTasks
-    throw UnimplementedError();
+    return localDatasource.deleteTask(taskModel);
   }
 
   @override
   Future<Either<Failure, bool>> updateTask(TaskEntity taskModel) {
-    // TODO: implement updateTask
-    throw UnimplementedError();
+    return localDatasource.updateTask(taskModel);
   }
 }

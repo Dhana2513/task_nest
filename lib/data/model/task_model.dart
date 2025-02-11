@@ -5,15 +5,15 @@ import '../../domain/entity/task_entity.dart';
 class TaskModel extends TaskEntity {
   const TaskModel({
     required super.title,
-    required super.description,
-    required super.isCompleted,
+    required super.subtitle,
+    super.isCompleted = false,
     required super.createdAt,
   });
 
   factory TaskModel.fromModel(Map<String, dynamic> json) {
     return TaskModel(
       title: json.getSting(TaskModelKey.title) ?? '',
-      description: json.getSting(TaskModelKey.description) ?? '',
+      subtitle: json.getSting(TaskModelKey.subtitle) ?? '',
       isCompleted: json.getBool(TaskModelKey.isCompleted) ?? false,
       createdAt: json.getDateTime(TaskModelKey.createdAt) ?? DateTime.now(),
     );
@@ -22,7 +22,7 @@ class TaskModel extends TaskEntity {
   Map<String, dynamic> toJson() {
     return {
       TaskModelKey.title: title,
-      TaskModelKey.description: description,
+      TaskModelKey.subtitle: subtitle,
       TaskModelKey.isCompleted: isCompleted,
       TaskModelKey.createdAt: createdAt,
     };
@@ -31,7 +31,7 @@ class TaskModel extends TaskEntity {
 
 class TaskModelKey {
   static const title = 'title';
-  static const description = 'description';
+  static const subtitle = 'subtitle';
   static const isCompleted = 'isCompleted';
   static const createdAt = 'createdAt';
 }

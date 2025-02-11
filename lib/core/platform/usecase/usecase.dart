@@ -13,5 +13,3 @@ abstract class UseCase<T, P extends Params> {
       ? Right(data!.data as T)
       : Left(data?.failure ?? Failure());
 }
-
-abstract class UseCases {}
