@@ -16,7 +16,7 @@ abstract class TaskLocalDatasourceProtocol {
 }
 
 class TaskLocalDatasource implements TaskLocalDatasourceProtocol {
-  late final Box _taskBox;
+    Box? _taskBox;
 
   TaskLocalDatasource() {
     initialize();
@@ -28,7 +28,7 @@ class TaskLocalDatasource implements TaskLocalDatasourceProtocol {
 
   @override
   Future<Either<Failure, bool>> createTask(TaskEntity taskModel) async {
-    final result = await _taskBox.add(taskModel);
+    final result = await _taskBox?.add(taskModel);
 
     if (result != 0) {
       return Right(true);
@@ -55,8 +55,8 @@ class TaskLocalDatasource implements TaskLocalDatasourceProtocol {
 
   @override
   Future<Either<Failure, List<TaskEntity>>> fetchTasks() async {
-    final result = _taskBox.values.toList() as List<TaskEntity>;
-    return Right(result);
+    final result = _taskBox?.values.toList().map((task) => task as TaskEntity).toList();
+    return Right(result ?? []);
   }
 
   @override
