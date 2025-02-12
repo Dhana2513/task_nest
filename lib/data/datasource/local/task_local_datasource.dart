@@ -8,69 +8,54 @@ import 'package:task_nest/domain/entity/task_entity.dart';
 abstract class TaskLocalDatasourceProtocol {
   Future<Either<Failure, List<TaskEntity>>> fetchTasks();
 
-  Future<Either<Failure, bool>> createTask(TaskEntity taskModel);
+  Future<Either<Failure, bool>> createTask(TaskEntity task);
 
-  Future<Either<Failure, bool>> updateTask(TaskEntity taskModel);
+  Future<Either<Failure, bool>> updateTask(TaskEntity task);
 
-  Future<Either<Failure, bool>> deleteTask(TaskEntity taskModel);
+  Future<Either<Failure, bool>> deleteTask(TaskEntity task);
+}
+
+abstract class _TaskBoxKey {
+  static const tasks = 'tasks';
 }
 
 class TaskLocalDatasource implements TaskLocalDatasourceProtocol {
-    Box? _taskBox;
+  Box? _taskBox;
 
   TaskLocalDatasource() {
     initialize();
   }
 
   Future<void> initialize() async {
-    _taskBox = await Hive.openBox('tasks');
-  }
-
-  @override
-  Future<Either<Failure, bool>> createTask(TaskEntity taskModel) async {
-    final result = await _taskBox?.add(taskModel);
-
-    if (result != 0) {
-      return Right(true);
-    } else {
-      return Left(Failure(
-        message: 'Failed to create task',
-      ));
-    }
-  }
-
-  @override
-  Future<Either<Failure, bool>> deleteTask(TaskEntity taskModel) async {
-    return Right(true);
-    // final result = await _taskBox.delete(taskModel);
-    //
-    // if (result != 0) {
-    //   return Right(true);
-    // } else {
-    //   return Left(Failure(
-    //     message: 'Failed to create task',
-    //   ));
-    // }
+    _taskBox ??= await Hive.openBox(_TaskBoxKey.tasks);
   }
 
   @override
   Future<Either<Failure, List<TaskEntity>>> fetchTasks() async {
-    final result = _taskBox?.values.toList().map((task) => task as TaskEntity).toList();
+    if (_taskBox == null) {
+      await initialize();
+    }
+
+    final result =
+        _taskBox?.values.toList().map((task) => task as TaskEntity).toList();
     return Right(result ?? []);
   }
 
   @override
-  Future<Either<Failure, bool>> updateTask(TaskEntity taskModel) async {
+  Future<Either<Failure, bool>> createTask(TaskEntity task) async {
+    await _taskBox?.add(task);
     return Right(true);
+  }
 
-    // final result = await _taskBox.(taskModel);
-    //
-    // if (result != 0) {
-    //   return Right(true);
-    // } else {
-    //   return Left(Failure(
-    //     message: 'Failed to create task',
-    //   ));
-    // }
+  @override
+  Future<Either<Failure, bool>> deleteTask(TaskEntity task) async {
+    await task.delete();
+    return Right(true);
+  }
+
+  @override
+  Future<Either<Failure, bool>> updateTask(TaskEntity task) async {
+    await task.save();
+    return Right(true);
   }
 }

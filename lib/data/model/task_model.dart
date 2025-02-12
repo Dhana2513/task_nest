@@ -3,35 +3,40 @@ import 'package:task_nest/core/extension/map_extension.dart';
 import '../../domain/entity/task_entity.dart';
 
 class TaskModel extends TaskEntity {
-  const TaskModel({
+  TaskModel({
+    super.documentID,
+    required super.id,
     required super.title,
     required super.subtitle,
-    super.isCompleted = false,
-    required super.createdAt,
+    super.completed = false,
   });
 
-  factory TaskModel.fromModel(Map<String, dynamic> json) {
+  factory TaskModel.fromJson({
+    required String documentID,
+    required Map<String, dynamic> json,
+  }) {
     return TaskModel(
+      documentID: documentID,
+      id: json.getSting(TaskModelKey.id) ?? '',
       title: json.getSting(TaskModelKey.title) ?? '',
       subtitle: json.getSting(TaskModelKey.subtitle) ?? '',
-      isCompleted: json.getBool(TaskModelKey.isCompleted) ?? false,
-      createdAt: json.getDateTime(TaskModelKey.createdAt) ?? DateTime.now(),
+      completed: json.getBool(TaskModelKey.completed) ?? false,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
+      TaskModelKey.id: id,
       TaskModelKey.title: title,
       TaskModelKey.subtitle: subtitle,
-      TaskModelKey.isCompleted: isCompleted,
-      TaskModelKey.createdAt: createdAt,
+      TaskModelKey.completed: completed,
     };
   }
 }
 
 class TaskModelKey {
+  static const id = 'id';
   static const title = 'title';
   static const subtitle = 'subtitle';
-  static const isCompleted = 'isCompleted';
-  static const createdAt = 'createdAt';
+  static const completed = 'completed';
 }

@@ -1,34 +1,44 @@
-import 'package:equatable/equatable.dart';
 import 'package:hive/hive.dart';
 
 part 'task_entity.g.dart';
 
 @HiveType(typeId: 0)
-class TaskEntity extends Equatable {
+class TaskEntity extends HiveObject {
   @HiveField(0)
-  final String title;
+  String? documentID;
 
   @HiveField(1)
-  final String subtitle;
+  String id;
 
   @HiveField(2)
-  final bool isCompleted;
+  String title;
 
   @HiveField(3)
-  final DateTime createdAt;
+  String subtitle;
 
-  const TaskEntity({
+  @HiveField(4)
+  bool completed;
+
+  TaskEntity({
+    this.documentID,
+    required this.id,
     required this.title,
     required this.subtitle,
-    this.isCompleted = false,
-    required this.createdAt,
+    this.completed = false,
   });
 
-  @override
-  List<Object?> get props => [
-        title,
-        subtitle,
-        isCompleted,
-        createdAt,
-      ];
+  void copyWith({
+    String? documentID,
+    String? id,
+    String? title,
+    String? subtitle,
+    bool? completed,
+    DateTime? createdAt,
+  }) {
+    this.documentID = documentID ?? this.documentID;
+    this.id = id ?? this.id;
+    this.title = title ?? this.title;
+    this.subtitle = subtitle ?? this.subtitle;
+    this.completed = completed ?? this.completed;
+  }
 }

@@ -10,8 +10,4 @@ extension MapX on Map {
   bool? getBool(String key, {bool? orElse}) {
     return containsKey(key) ? get<bool>(key) : orElse;
   }
-
-  DateTime? getDateTime(String key, {DateTime? orElse}) {
-    return containsKey(key) ? get<DateTime>(key) : orElse;
-  }
 }

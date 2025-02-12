@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../constant/text_style.dart';
-import '../extension/box_padding.dart';
+import '../../core/constant/text_style.dart';
+import '../../core/extension/box_padding.dart';
 
 class UiTextField extends StatelessWidget {
   const UiTextField({

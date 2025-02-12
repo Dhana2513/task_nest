@@ -4,6 +4,7 @@ import 'package:task_nest/data/datasource/remote/task_remote_datasource.dart';
 import 'package:task_nest/data/repository/task_repository.dart';
 import 'package:task_nest/domain/usecase/create_task.dart';
 import 'package:task_nest/domain/usecase/delete_task.dart';
+import 'package:task_nest/domain/usecase/sync_tasks.dart';
 import 'package:task_nest/domain/usecase/update_task.dart';
 
 import 'domain/repository/task_repository_protocol.dart';
@@ -17,43 +18,49 @@ class DependencyManager {
   static final registrar = GetIt.instance;
 
   static void initialize() {
-    registrar.registerSingleton<TaskLocalDatasourceProtocol>(
-      TaskLocalDatasource(),
+    registrar.registerFactory<TaskLocalDatasourceProtocol>(
+      () => TaskLocalDatasource(),
     );
 
-    registrar.registerSingleton<TaskRemoteDatasourceProtocol>(
-      TaskRemoteDatasource(),
+    registrar.registerLazySingleton<TaskRemoteDatasourceProtocol>(
+      () => TaskRemoteDatasource(),
     );
 
-    registrar.registerSingleton<TaskRepositoryProtocol>(
-      TaskRepository(
+    registrar.registerLazySingleton<TaskRepositoryProtocol>(
+      () => TaskRepository(
         localDatasource: registrar(),
         remoteDatasource: registrar(),
       ),
     );
 
-    registrar.registerSingleton<FetchTasks>(
-      FetchTasks(repository: registrar()),
+    registrar.registerLazySingleton<FetchTasks>(
+      () => FetchTasks(repository: registrar()),
     );
-    registrar.registerSingleton<CreateTask>(
-      CreateTask(repository: registrar()),
+    registrar.registerLazySingleton<CreateTask>(
+      () => CreateTask(repository: registrar()),
     );
-    registrar.registerSingleton<UpdateTask>(
-      UpdateTask(repository: registrar()),
+    registrar.registerLazySingleton<UpdateTask>(
+      () => UpdateTask(repository: registrar()),
     );
-    registrar.registerSingleton<DeleteTask>(
-      DeleteTask(repository: registrar()),
+    registrar.registerLazySingleton<DeleteTask>(
+      () => DeleteTask(repository: registrar()),
+    );
+    registrar.registerLazySingleton<SyncTasks>(
+      () => SyncTasks(repository: registrar()),
     );
 
-    registrar.registerSingleton<UseCases>(
-      UseCases(
+    registrar.registerLazySingleton<UseCases>(
+      () => UseCases(
         fetchTasks: registrar(),
         createTask: registrar(),
         deleteTask: registrar(),
         updateTask: registrar(),
+        syncTasks: registrar(),
       ),
     );
 
-    registrar.registerSingleton<TaskCubit>(TaskCubit(useCases: registrar()));
+    registrar.registerLazySingleton<TaskCubit>(
+      () => TaskCubit(useCases: registrar()),
+    );
   }
 }

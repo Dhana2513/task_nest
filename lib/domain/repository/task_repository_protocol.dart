@@ -6,9 +6,11 @@ import '../../core/platform/failure.dart';
 abstract class TaskRepositoryProtocol {
   Future<Either<Failure, List<TaskEntity>>> fetchTasks();
 
-  Future<Either<Failure, bool>> createTask(TaskEntity taskModel);
+  Future<Either<Failure, bool>> createTask(TaskEntity task);
 
-  Future<Either<Failure, bool>> updateTask(TaskEntity taskModel);
+  Future<Either<Failure, bool>> updateTask(TaskEntity task);
 
-  Future<Either<Failure, bool>> deleteTask(TaskEntity taskModel);
+  Future<Either<Failure, bool>> deleteTask(TaskEntity task);
+
+  Future<Either<Failure, List<TaskEntity>>> syncTasks();
 }

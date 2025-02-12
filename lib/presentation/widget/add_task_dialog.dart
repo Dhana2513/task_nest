@@ -4,7 +4,7 @@ import 'package:task_nest/domain/entity/task_entity.dart';
 
 import '../../core/constant/text_style.dart';
 import '../../core/extension/box_padding.dart';
-import '../../core/widget/ui_text_field.dart';
+import 'ui_text_field.dart';
 import '../../dependency_manager.dart';
 import '../bloc/task_cubit.dart';
 
@@ -43,7 +43,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
     )));
   }
 
-  void addTask() async {
+  void saveTask() async {
     final title = titleController.text.trim();
     final subtitle = subtitleController.text.trim();
 
@@ -57,15 +57,24 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
       return;
     }
 
-    final task = TaskEntity(
-      title: title,
-      subtitle: subtitle,
-      createdAt: DateTime.now(),
-    );
-
-    taskCubit.createTask(task);
-
     loadingNotifier.value = true;
+
+    if (widget.task != null) {
+      widget.task!.copyWith(
+        title: title,
+        subtitle: subtitle,
+      );
+
+      taskCubit.updateTask(widget.task!);
+    } else {
+      final task = TaskEntity(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        title: title,
+        subtitle: subtitle,
+      );
+
+      taskCubit.createTask(task);
+    }
 
     loadingNotifier.value = false;
     closeDialog();
@@ -140,7 +149,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
                         borderRadius: BorderRadius.circular(BoxPadding.medium),
                       ),
                     ),
-                    onPressed: addTask,
+                    onPressed: saveTask,
                     child: Padding(
                       padding: const EdgeInsets.all(BoxPadding.small),
                       child: Text(

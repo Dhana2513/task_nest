@@ -17,25 +17,28 @@ class TaskEntityAdapter extends TypeAdapter<TaskEntity> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return TaskEntity(
-      title: fields[0] as String,
-      subtitle: fields[1] as String,
-      isCompleted: fields[2] as bool,
-      createdAt: fields[3] as DateTime,
+      documentID: fields[0] as String?,
+      id: fields[1] as String,
+      title: fields[2] as String,
+      subtitle: fields[3] as String,
+      completed: fields[4] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, TaskEntity obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
-      ..write(obj.title)
+      ..write(obj.documentID)
       ..writeByte(1)
-      ..write(obj.subtitle)
+      ..write(obj.id)
       ..writeByte(2)
-      ..write(obj.isCompleted)
+      ..write(obj.title)
       ..writeByte(3)
-      ..write(obj.createdAt);
+      ..write(obj.subtitle)
+      ..writeByte(4)
+      ..write(obj.completed);
   }
 
   @override
