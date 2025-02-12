@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:task_nest/core/constant/text_style.dart';
 import 'package:task_nest/core/extension/box_padding.dart';
 import 'package:task_nest/core/platform/local_database.dart';
+import 'package:task_nest/core/widget/ui_button.dart';
+import 'package:task_nest/core/widget/ui_dialog.dart';
 import 'package:task_nest/dependency_manager.dart';
 import 'package:task_nest/presentation/bloc/task_cubit.dart';
 
@@ -23,12 +25,62 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    taskCubit.fetchTasks();
-    initOfflineModeNotifier();
+    initialize();
   }
 
-  void initOfflineModeNotifier() async {
+  Future<void> initialize() async {
+    taskCubit.fetchTasks();
     offlineModeNotifier.value = await LocalDatabase.instance.isOffline;
+  }
+
+  void presentDeleteTaskDialog({required TaskEntity task}) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: UiDialog(
+            title: Constants.deleteTaskTitle,
+            body: Padding(
+              padding: const EdgeInsets.all(BoxPadding.large),
+              child: Column(
+                spacing: BoxPadding.large,
+                children: [
+                  Text(
+                    Constants.deleteTaskMessage,
+                    style: UITextStyle.title.copyWith(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: BoxPadding.large,
+                    children: [
+                      UIButton(
+                        title: Constants.delete,
+                        onPressed: () async {
+                          dismissDialog();
+
+                          await taskCubit.deleteTask(task);
+                        },
+                      ),
+                      UIButton(
+                        title: Constants.cancel,
+                        onPressed: dismissDialog,
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void dismissDialog() {
+    Navigator.of(context).pop();
   }
 
   void presentAddTaskDialog({TaskEntity? task}) {
@@ -63,15 +115,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
     await taskCubit.syncTasks();
 
-    if (mounted) {
-      Navigator.pop(context);
-    }
+    dismissDialog();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
+  Widget iconButton({required IconData icon, required VoidCallback onTap}) {
+    return IconButton(
+      onPressed: onTap,
+      icon: Icon(
+        icon,
+        color: Theme.of(context).primaryColor,
+      ),
+    );
+  }
+
+  PreferredSizeWidget get appBar => AppBar(
         title: const Text(Constants.appName),
         actions: [
           ValueListenableBuilder(
@@ -102,69 +159,113 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           ),
         ],
+      );
+
+  Widget get noTasksView => Padding(
+        padding: const EdgeInsets.symmetric(
+          vertical: BoxPadding.xxxLarge,
+          horizontal: BoxPadding.large,
+        ),
+        child: Column(
+          spacing: BoxPadding.large,
+          children: [
+            Text(
+              Constants.noTaskTitle,
+              style: UITextStyle.title,
+            ),
+            Text(
+              Constants.noTaskSubtitle,
+              textAlign: TextAlign.center,
+              style: UITextStyle.bodyLarge,
+            ),
+          ],
+        ),
+      );
+
+  Widget taskItemView(TaskEntity task) {
+    return ListTile(
+      leading: Checkbox(
+        value: task.completed,
+        onChanged: (value) {
+          task.completed = !task.completed;
+
+          taskCubit.updateTask(task);
+        },
       ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          iconButton(
+            icon: Icons.edit,
+            onTap: () => presentAddTaskDialog(task: task),
+          ),
+          iconButton(
+            icon: Icons.delete,
+            onTap: () => presentDeleteTaskDialog(task: task),
+          ),
+        ],
+      ),
+      title: Text(task.title),
+      subtitle: Text(task.subtitle),
+    );
+  }
+
+  Widget taskListView(List<TaskEntity> tasks) {
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      itemCount: tasks.length,
+      separatorBuilder: (context, index) => Divider(
+        thickness: 0.5,
+        height: BoxPadding.xxxSmall,
+      ),
+      itemBuilder: (context, index) {
+        return taskItemView(tasks[index]);
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: appBar,
       body: StreamBuilder(
         stream: taskCubit.stream,
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
+
           final tasks = snapshot.data!;
+
           if (tasks.isEmpty) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: BoxPadding.xxxLarge,
-                horizontal: BoxPadding.large,
-              ),
-              child: Column(
-                spacing: BoxPadding.large,
-                children: [
-                  Text(
-                    Constants.noTaskTitle,
-                    style: UITextStyle.title,
-                  ),
-                  Text(
-                    Constants.noTaskSubtitle,
-                    textAlign: TextAlign.center,
-                    style: UITextStyle.bodyLarge,
-                  ),
-                ],
-              ),
-            );
+            return noTasksView;
           }
 
-          return ListView.separated(
-            itemCount: tasks.length,
-            separatorBuilder: (BuildContext context, int index) {
-              return Divider(thickness: 0.5);
-            },
-            itemBuilder: (context, index) {
-              final task = tasks[index];
+          final incompleteTasks =
+              tasks.where((task) => !task.completed).toList();
+          final completedTasks = tasks.where((task) => task.completed).toList();
 
-              return ListTile(
-                leading: Checkbox(
-                  value: task.completed,
-                  onChanged: (value) {
-                    task.completed = !task.completed;
-
-                    taskCubit.updateTask(task);
-                  },
+          return ListView(
+            children: [
+              if (incompleteTasks.isNotEmpty) ...[
+                taskListView(incompleteTasks),
+              ],
+              if (completedTasks.isNotEmpty) ...[
+                Padding(
+                  padding: const EdgeInsets.only(
+                    top: BoxPadding.large,
+                    left: BoxPadding.large,
+                    bottom: BoxPadding.small,
+                  ),
+                  child: Text(
+                    Constants.completedTasks,
+                    style: UITextStyle.subtitle1,
+                  ),
                 ),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                        onPressed: () {
-                          presentAddTaskDialog(task: task);
-                        },
-                        icon: Icon(Icons.edit)),
-                    IconButton(onPressed: () {}, icon: Icon(Icons.delete))
-                  ],
-                ),
-                title: Text(task.title),
-                subtitle: Text(task.subtitle),
-              );
-            },
+                taskListView(completedTasks),
+              ],
+            ],
           );
         },
       ),

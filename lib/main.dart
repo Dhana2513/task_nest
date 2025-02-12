@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:task_nest/core/application.dart';
+import 'package:task_nest/application.dart';
 import 'package:task_nest/core/constant/text_style.dart';
 
 import 'presentation/home_screen.dart';

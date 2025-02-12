@@ -47,6 +47,7 @@ class TaskRepository implements TaskRepositoryProtocol {
     required List<TaskEntity> localTasks,
     required List<TaskEntity> remoteTasks,
   }) async {
+    //Syncing tasks from remote to local
     for (final remoteTask in remoteTasks) {
       bool presentInLocal = false;
 
@@ -62,6 +63,7 @@ class TaskRepository implements TaskRepositoryProtocol {
       }
     }
 
+    //Deleting tasks from local that are not present in remote
     for (final localTask in localTasks) {
       bool presentInRemote = false;
       for (final remoteTask in remoteTasks) {
@@ -72,7 +74,7 @@ class TaskRepository implements TaskRepositoryProtocol {
       }
 
       if (!presentInRemote) {
-        await remoteDatasource.deleteTask(localTask as TaskModel);
+        await remoteDatasource.deleteTask(TaskModel.fromEntity(localTask));
       }
     }
   }
@@ -83,7 +85,7 @@ class TaskRepository implements TaskRepositoryProtocol {
       return localDatasource.createTask(task);
     }
 
-    return remoteDatasource.createTask(task as TaskModel);
+    return remoteDatasource.createTask(TaskModel.fromEntity(task));
   }
 
   @override
@@ -92,7 +94,7 @@ class TaskRepository implements TaskRepositoryProtocol {
       return localDatasource.deleteTask(task);
     }
 
-    return remoteDatasource.deleteTask(task as TaskModel);
+    return remoteDatasource.deleteTask(TaskModel.fromEntity(task));
   }
 
   @override
@@ -101,7 +103,7 @@ class TaskRepository implements TaskRepositoryProtocol {
       return localDatasource.updateTask(task);
     }
 
-    return remoteDatasource.updateTask(task as TaskModel);
+    return remoteDatasource.updateTask(TaskModel.fromEntity(task));
   }
 
   @override
@@ -117,6 +119,7 @@ class TaskRepository implements TaskRepositoryProtocol {
     final List<TaskEntity> remoteTasks =
         result[1].isRight() ? result[1].getOrElse(() => []) : [];
 
+    //Syncing tasks from local to remote
     for (final localTask in localTasks) {
       bool presentInRemote = false;
 
@@ -128,10 +131,11 @@ class TaskRepository implements TaskRepositoryProtocol {
       }
 
       if (!presentInRemote) {
-        await remoteDatasource.createTask(localTask as TaskModel);
+        await remoteDatasource.createTask(TaskModel.fromEntity(localTask));
       }
     }
 
+    //Deleting tasks from remote that are not present in local
     for (final remoteTask in remoteTasks) {
       bool presentInLocal = false;
       for (final localTask in localTasks) {

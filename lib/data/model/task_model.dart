@@ -11,6 +11,16 @@ class TaskModel extends TaskEntity {
     super.completed = false,
   });
 
+  factory TaskModel.fromEntity(TaskEntity task) {
+    return TaskModel(
+      documentID: task.documentID,
+      id: task.id,
+      title: task.title,
+      subtitle: task.subtitle,
+      completed: task.completed,
+    );
+  }
+
   factory TaskModel.fromJson({
     required String documentID,
     required Map<String, dynamic> json,
