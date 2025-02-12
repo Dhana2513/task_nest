@@ -74,7 +74,7 @@ class TaskRepository implements TaskRepositoryProtocol {
       }
 
       if (!presentInRemote) {
-        await remoteDatasource.deleteTask(TaskModel.fromEntity(localTask));
+        await localDatasource.deleteTask(localTask);
       }
     }
   }
@@ -146,7 +146,7 @@ class TaskRepository implements TaskRepositoryProtocol {
       }
 
       if (!presentInLocal) {
-        await localDatasource.deleteTask(remoteTask);
+        await remoteDatasource.deleteTask(TaskModel.fromEntity(remoteTask));
       }
     }
 
