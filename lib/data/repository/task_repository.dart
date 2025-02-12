@@ -150,6 +150,6 @@ class TaskRepository implements TaskRepositoryProtocol {
       }
     }
 
-    return Right(localTasks);
+    return remoteDatasource.fetchTasks();
   }
 }

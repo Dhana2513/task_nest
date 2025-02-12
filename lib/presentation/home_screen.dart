@@ -151,6 +151,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       offlineModeNotifier.value = value;
                       if (value == false) {
                         syncTasks();
+                      } else {
+                        taskCubit.fetchTasks();
                       }
                     },
                   )
