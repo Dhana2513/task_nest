@@ -42,6 +42,9 @@ class TaskRemoteDatasource implements TaskRemoteDatasourceProtocol {
         )
         .toList();
 
+    tasks.sort(
+        (taskA, taskB) => int.parse(taskA.id) > int.parse(taskB.id) ? 1 : 0);
+
     return Right(tasks);
   }
 
