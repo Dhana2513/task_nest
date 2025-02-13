@@ -63,12 +63,15 @@ class TaskRepository implements TaskRepositoryProtocol {
       }
     }
 
-    //Deleting tasks from local that are not present in remote
+    // Deleting/updating tasks from local that are not present in remote
     for (final localTask in localTasks) {
       bool presentInRemote = false;
       for (final remoteTask in remoteTasks) {
         if (localTask.id == remoteTask.id) {
           presentInRemote = true;
+          if (!localTask.isEqual(remoteTask)) {
+            await localDatasource.updateTask(localTask);
+          }
           break;
         }
       }
@@ -135,12 +138,15 @@ class TaskRepository implements TaskRepositoryProtocol {
       }
     }
 
-    //Deleting tasks from remote that are not present in local
+    // Deleting/updating tasks from remote that are not present in local
     for (final remoteTask in remoteTasks) {
       bool presentInLocal = false;
       for (final localTask in localTasks) {
         if (remoteTask.id == localTask.id) {
           presentInLocal = true;
+          if (!remoteTask.isEqual(localTask)) {
+            await remoteDatasource.updateTask(TaskModel.fromEntity(localTask));
+          }
           break;
         }
       }

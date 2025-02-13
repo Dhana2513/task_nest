@@ -27,6 +27,13 @@ class TaskEntity extends HiveObject {
     this.completed = false,
   });
 
+  bool isEqual(TaskEntity other) {
+    return id == other.id &&
+        title == other.title &&
+        subtitle == other.subtitle &&
+        completed == other.completed;
+  }
+
   void copyWith({
     String? documentID,
     String? id,

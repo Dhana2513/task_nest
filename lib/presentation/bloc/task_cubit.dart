@@ -14,15 +14,9 @@ class TaskCubit extends Cubit<List<TaskEntity>> {
 
   Future<void> fetchTasks() async {
     final result = await useCases.fetchTasks(NoParam());
-
-    result.fold(
-      (failure) {},
-      (tasks) {
-        if (tasks != null) {
-          emit(tasks);
-        }
-      },
-    );
+    if (result.isRight()) {
+      emit(result.getOrElse(() => []) as List<TaskEntity>);
+    }
   }
 
   Future<void> createTask(TaskEntity task) async {
@@ -42,14 +36,9 @@ class TaskCubit extends Cubit<List<TaskEntity>> {
 
   Future<void> syncTasks() async {
     final result = await useCases.syncTasks(NoParam());
-    result.fold(
-      (failure) {},
-      (tasks) {
-        if (tasks?.isNotEmpty == true) {
-          emit(tasks!);
-        }
-      },
-    );
+    if (result.isRight()) {
+      emit(result.getOrElse(() => []) as List<TaskEntity>);
+    }
   }
 
   void refreshTaskOnSuccess(Either<Failure, bool?> result) {
