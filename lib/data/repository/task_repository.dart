@@ -70,7 +70,7 @@ class TaskRepository implements TaskRepositoryProtocol {
         if (localTask.id == remoteTask.id) {
           presentInRemote = true;
           if (!localTask.isEqual(remoteTask)) {
-            await localDatasource.updateTask(localTask);
+            await localDatasource.updateTask(remoteTask);
           }
           break;
         }
